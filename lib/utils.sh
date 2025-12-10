@@ -227,7 +227,12 @@ validate_ip() {
     read -ra octets <<< "$ip"
 
     for octet in "${octets[@]}"; do
-        if [[ "$octet" -lt 0 ]] || [[ "$octet" -gt 255 ]]; then
+        # Strip leading zeros to avoid octal interpretation issues
+        # This prevents errors with IPs like 08.08.08.08 where bash
+        # tries to interpret 08 and 09 as invalid octal numbers
+        octet=$((10#$octet))
+        
+        if (( octet < 0 || octet > 255 )); then
             return 1
         fi
     done
