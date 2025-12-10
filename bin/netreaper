@@ -1283,6 +1283,10 @@ is_valid_ip() {
     local IFS='.'
     read -ra octets <<< "$ip"
     for octet in "${octets[@]}"; do
+        # Strip leading zeros to avoid octal interpretation issues
+        # This prevents errors with IPs like 08.08.08.08 where bash
+        # tries to interpret 08 and 09 as invalid octal numbers
+        octet=$((10#$octet))
         ((octet > 255)) && return 1
     done
 
